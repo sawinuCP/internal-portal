@@ -1,4 +1,4 @@
-# Team Portal — Internal Portal (Take-Home Task)
+# Team Portal — Internal Portal
 
 A small internal portal built as a team home base: login-gated, with a single
 content section — an **announcements feed** that supports creating and viewing
@@ -30,6 +30,8 @@ Demo logins (created by the seed script):
 
 - **Login page** (`/login`) with inline validation, pending state, and a clear
   error banner; honors `?next=` to return you to where you were headed.
+- **Sign up** (`/signup`) — self-serve account creation; new users land
+  straight in the portal.
 - **Protected portal** (`/announcements`) — the announcements feed:
   - create announcements (validated, with a character counter) and see them
     appear at the top of the list,
@@ -42,6 +44,11 @@ Demo logins (created by the seed script):
 
 **Credential storage.** Passwords are hashed with bcrypt (cost 12); plaintext
 is never stored or logged. Login verifies with `bcrypt.compare`.
+
+**Account creation.** Signup hashes passwords with bcrypt at creation
+(8–72 chars — bcrypt ignores bytes past 72). Duplicate emails are rejected
+with `409`; the unique index also catches races between simultaneous
+signups, and new sessions start immediately after signup.
 
 **Sessions.** On login the server creates a `Session` row and sets an opaque,
 32-byte random token in a cookie:
@@ -91,6 +98,7 @@ not the case here.
 | Method & path | Auth | Success | Errors |
 |---|---|---|---|
 | `POST /api/auth/login` | — | `200 {user}` + session cookie | `400` bad JSON, `401` invalid creds, `422` validation, `429` rate-limited, `403` cross-origin |
+| `POST /api/auth/register` | — | `201 {user}` + session cookie | `400` bad JSON, `409` email taken, `422` validation, `403` cross-origin |
 | `POST /api/auth/logout` | ✔ | `204` | `403` cross-origin |
 | `GET /api/auth/me` | ✔ | `200 {user}` | `401` |
 | `GET /api/announcements` | ✔ | `200 {items}` newest-first | `401` |
@@ -110,6 +118,7 @@ src/
 ├── app/
 │   ├── page.tsx                   # entry redirect: portal or login
 │   ├── login/page.tsx             # public login page
+│   ├── signup/page.tsx            # public signup page
 │   ├── (portal)/                  # authenticated area
 │   │   ├── layout.tsx             # DB-verified session + top bar + logout
 │   │   └── announcements/page.tsx # the content section
@@ -118,7 +127,7 @@ src/
 │       └── announcements/route.ts # GET list + POST create
 ├── components/
 │   ├── ui/                        # Button, Input, Textarea, FormField, Alert, Card
-│   ├── auth/                      # LoginForm, LogoutButton
+│   ├── auth/                      # LoginForm, SignupForm, LogoutButton
 │   └── announcements/             # Section, Form, List
 └── lib/
     ├── db.ts                      # Prisma client singleton
@@ -137,7 +146,7 @@ src/
 | SQLite via Prisma | A real relational DB with zero external services — runs anywhere after `npm install` |
 | bcryptjs (cost 12) | Standard credential hashing without native-build friction |
 | Server-side sessions; opaque token, SHA-256-hashed at rest | Instant revocation, XSS-resistant storage, no JWT revocation problem |
-| No public registration | It's an *internal* portal — accounts are provisioned by the seed script |
+| Open signup | Keeps the take-home self-serve: reviewers create their own account. A real internal portal would gate this behind invite codes or admin provisioning |
 | Zod schemas shared by API and forms | Client and server validation can never drift apart |
 | RSC pages + one small client hook | Server components render; `useAnnouncements` owns feed state; no global state library at this scope |
 | In-memory rate limiter | Right-sized for this scope; a real deployment would use a shared store (below) |

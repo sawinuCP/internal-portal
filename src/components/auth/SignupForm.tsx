@@ -7,10 +7,11 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
 import { Input } from "@/components/ui/Input";
-import { fieldErrorsFromZod, loginSchema } from "@/lib/validation/schemas";
+import { fieldErrorsFromZod, registerSchema } from "@/lib/validation/schemas";
 
-export function LoginForm({ nextPath }: { nextPath: string }) {
+export function SignupForm() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -21,7 +22,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
     event.preventDefault();
     setFormError(null);
 
-    const parsed = loginSchema.safeParse({ email, password });
+    const parsed = registerSchema.safeParse({ name, email, password });
     if (!parsed.success) {
       setFieldErrors(fieldErrorsFromZod(parsed.error));
       return;
@@ -30,7 +31,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
     setPending(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(parsed.data),
@@ -41,15 +42,15 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
           error?: { message?: string; fields?: Record<string, string> };
         } | null;
         if (data?.error?.fields) setFieldErrors(data.error.fields);
-        setFormError(data?.error?.message ?? "Could not sign in. Please try again.");
+        setFormError(data?.error?.message ?? "Could not create the account. Please try again.");
         return;
       }
 
-      // the api set the session cookie — refresh server components and move on
-      router.replace(nextPath);
+      // the api created the user and set the session cookie — straight in
+      router.replace("/announcements");
       router.refresh();
     } catch {
-      setFormError("Could not sign in. Check your connection and try again.");
+      setFormError("Could not create the account. Check your connection and try again.");
     } finally {
       setPending(false);
     }
@@ -63,9 +64,22 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
     >
       {formError && <Alert tone="error">{formError}</Alert>}
 
-      <FormField label="Email" htmlFor="login-email" error={fieldErrors.email}>
+      <FormField label="Name" htmlFor="signup-name" error={fieldErrors.name}>
         <Input
-          id="login-email"
+          id="signup-name"
+          name="name"
+          autoComplete="name"
+          value={name}
+          invalid={Boolean(fieldErrors.name)}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Your name"
+          autoFocus
+        />
+      </FormField>
+
+      <FormField label="Email" htmlFor="signup-email" error={fieldErrors.email}>
+        <Input
+          id="signup-email"
           name="email"
           type="email"
           autoComplete="email"
@@ -73,20 +87,20 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
           invalid={Boolean(fieldErrors.email)}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@team.dev"
-          autoFocus
         />
       </FormField>
 
       <FormField
         label="Password"
-        htmlFor="login-password"
+        htmlFor="signup-password"
         error={fieldErrors.password}
+        hint="At least 8 characters."
       >
         <Input
-          id="login-password"
+          id="signup-password"
           name="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           value={password}
           invalid={Boolean(fieldErrors.password)}
           onChange={(event) => setPassword(event.target.value)}
@@ -95,13 +109,16 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
       </FormField>
 
       <Button type="submit" loading={pending} className="w-full">
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "Creating account…" : "Create account"}
       </Button>
 
       <p className="text-center text-xs text-slate-500">
-        Need an account?{" "}
-        <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-          Sign up
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="font-medium text-indigo-600 hover:text-indigo-500"
+        >
+          Sign in
         </Link>
       </p>
     </form>

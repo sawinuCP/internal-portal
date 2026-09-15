@@ -1,26 +1,15 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
-import { LoginForm } from "@/components/auth/LoginForm";
+import { SignupForm } from "@/components/auth/SignupForm";
 
 export const metadata = {
-  title: "Log in",
+  title: "Sign up",
 };
 
-// only internal paths — no open redirects
-function safeNextPath(raw: string | undefined): string {
-  if (raw && raw.startsWith("/") && !raw.startsWith("//")) return raw;
-  return "/announcements";
-}
-
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ next?: string }>;
-}) {
+export default async function SignupPage() {
+  // already have an account and a session? no need to sign up
   const user = await getSessionUser();
   if (user) redirect("/announcements");
-
-  const { next } = await searchParams;
 
   return (
     <div className="flex min-h-dvh items-center justify-center px-4 py-12">
@@ -36,11 +25,11 @@ export default async function LoginPage({
             Team Portal
           </h1>
           <p className="text-sm text-slate-600">
-            Sign in to see team announcements.
+            Create an account to join the portal.
           </p>
         </div>
 
-        <LoginForm nextPath={safeNextPath(next)} />
+        <SignupForm />
       </div>
     </div>
   );
