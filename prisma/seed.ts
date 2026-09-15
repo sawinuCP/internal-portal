@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 const BCRYPT_COST = 12;
 
-// Demo credentials for the take-home reviewer — documented in the README.
+// demo credentials, also listed in the README
 const DEMO_USERS = [
   { name: "Amara Silva", email: "amara@portal.dev", password: "Password123!" },
   { name: "Dilan Perera", email: "dilan@portal.dev", password: "Password123!" },
@@ -27,7 +27,7 @@ async function main() {
     const passwordHash = await hash(user.password, BCRYPT_COST);
     await prisma.user.upsert({
       where: { email: user.email },
-      update: {}, // never overwrite an existing password on re-seed
+      update: {}, // don't clobber existing passwords on re-seed
       create: { name: user.name, email: user.email, passwordHash },
     });
   }

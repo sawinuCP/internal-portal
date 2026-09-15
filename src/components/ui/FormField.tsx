@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
 
-/**
- * Label + control + inline error/hint, keeping form markup consistent
- * across the login form and the announcement composer.
- */
 export function FormField({
   label,
   htmlFor,

@@ -11,11 +11,6 @@ function SkeletonItem() {
   );
 }
 
-/**
- * The feed. Handles all three data states explicitly: loading (skeletons),
- * empty (invitation to post), and populated (newest first, with author and
- * relative time).
- */
 export function AnnouncementList({
   items,
   loading,

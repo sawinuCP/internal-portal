@@ -6,7 +6,7 @@ export const metadata = {
   title: "Log in",
 };
 
-// Only allow internal destinations in ?next= (prevents open redirects).
+// only internal paths — no open redirects
 function safeNextPath(raw: string | undefined): string {
   if (raw && raw.startsWith("/") && !raw.startsWith("//")) return raw;
   return "/announcements";
@@ -17,7 +17,6 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ next?: string }>;
 }) {
-  // Already signed in? Straight to the portal.
   const user = await getSessionUser();
   if (user) redirect("/announcements");
 

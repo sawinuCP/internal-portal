@@ -8,12 +8,6 @@ import { FormField } from "@/components/ui/FormField";
 import { Input } from "@/components/ui/Input";
 import { fieldErrorsFromZod, loginSchema } from "@/lib/validation/schemas";
 
-/**
- * Login form. Validates with the same zod schema the API uses, shows inline
- * field errors, surfaces API failures in an alert banner, and disables
- * itself while signing in. On success the session cookie is set by the API;
- * we refresh server components and continue to the intended destination.
- */
 export function LoginForm({ nextPath }: { nextPath: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -50,6 +44,7 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
         return;
       }
 
+      // the api set the session cookie — refresh server components and move on
       router.replace(nextPath);
       router.refresh();
     } catch {

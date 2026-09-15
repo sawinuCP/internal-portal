@@ -19,7 +19,6 @@ const sizeClasses: Record<Size, string> = {
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   size?: Size;
-  /** Shows a spinner and disables the button while an action is in flight. */
   loading?: boolean;
 };
 

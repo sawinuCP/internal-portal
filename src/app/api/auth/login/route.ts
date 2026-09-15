@@ -7,9 +7,7 @@ import { jsonError, jsonOk, jsonValidationError } from "@/lib/http/responses";
 import { isSameOrigin } from "@/lib/http/origin";
 import { fieldErrorsFromZod, loginSchema } from "@/lib/validation/schemas";
 
-// bcrypt hash of a long random string that no real credential will match.
-// Used below so that "unknown email" and "wrong password" take the same
-// amount of work to reject.
+// unknown emails compare against this too, so timing can't reveal who exists
 const DUMMY_PASSWORD_HASH = "$2b$12$NtJojgtq..T6gTUPi/59OOOqxlFbE/yJSqvvgx4VdF6h3iqEXwmAW";
 
 export async function POST(request: NextRequest) {
@@ -36,10 +34,7 @@ export async function POST(request: NextRequest) {
 
   const user = await db.user.findUnique({ where: { email: parsed.data.email } });
 
-  // One generic message for unknown email and wrong password alike, so this
-  // endpoint cannot be used to enumerate which accounts exist — and because
-  // both failure paths run exactly one bcrypt compare, response timing cannot
-  // reveal whether an email is registered.
+  // same message for wrong email and wrong password — no enumeration
   const passwordMatches = await verifyPassword(
     parsed.data.password,
     user ? user.passwordHash : DUMMY_PASSWORD_HASH,
@@ -48,8 +43,7 @@ export async function POST(request: NextRequest) {
     return jsonError("Invalid email or password.", 401);
   }
 
-  // Housekeeping: clear expired sessions while we're here, so the table
-  // doesn't grow forever (each session is also rejected lazily on lookup).
+  // sweep expired sessions while we're here
   await db.session.deleteMany({ where: { expiresAt: { lt: new Date() } } });
 
   await createSession(user.id, request.headers.get("user-agent"));

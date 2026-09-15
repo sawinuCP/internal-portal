@@ -1,10 +1,6 @@
 import { z } from "zod";
 
-/**
- * Shared validation schemas. The same definitions validate API request
- * bodies server-side and form input client-side, so the rules can never
- * drift apart.
- */
+// shared by the api routes and the client forms, so the rules can't drift
 
 export const loginSchema = z.object({
   email: z
@@ -31,7 +27,6 @@ export const announcementSchema = z.object({
 export type LoginInput = z.infer<typeof loginSchema>;
 export type AnnouncementInput = z.infer<typeof announcementSchema>;
 
-/** Flattens a ZodError into { fieldName: firstMessage } for API responses and forms. */
 export function fieldErrorsFromZod(error: z.ZodError): Record<string, string> {
   const fields: Record<string, string> = {};
   for (const issue of error.issues) {

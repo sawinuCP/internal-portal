@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Baseline security headers applied to every response.
+  // security headers
   async headers() {
     return [
       {

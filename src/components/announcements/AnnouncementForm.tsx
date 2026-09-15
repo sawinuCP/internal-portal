@@ -12,11 +12,6 @@ import {
   type AnnouncementInput,
 } from "@/lib/validation/schemas";
 
-/**
- * Create form for announcements. Validates with the SAME zod schema the API
- * uses before submitting, shows inline field errors, and surfaces API-level
- * failures in an alert. Clears on success.
- */
 export function AnnouncementForm({
   onSubmit,
   submitting,

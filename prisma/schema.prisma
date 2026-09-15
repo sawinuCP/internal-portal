@@ -1,8 +1,4 @@
-// Prisma schema for the internal portal.
-// - User      : portal members. Passwords are stored as bcrypt hashes only.
-// - Session   : server-side sessions. The DB stores only the SHA-256 hash of the
-//               cookie token, so a leaked database cannot be used to forge cookies.
-// - Announcement : the portal's single content section (create + view feed).
+// users, server-side sessions, and the announcements feed
 
 generator client {
   provider = "prisma-client-js"
@@ -29,7 +25,7 @@ model Session {
   tokenHash String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  userAgent String? // captured at login; foundation for "active devices" awareness
+  userAgent String? // captured at login
   expiresAt DateTime
   createdAt DateTime @default(now())
 

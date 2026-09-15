@@ -8,7 +8,6 @@ import {
   fieldErrorsFromZod,
 } from "@/lib/validation/schemas";
 
-// GET /api/announcements — the feed, newest first, with author attribution.
 export async function GET() {
   const user = await requireSession();
   if (!user) return unauthorized();
@@ -30,8 +29,6 @@ export async function GET() {
   });
 }
 
-// POST /api/announcements — create one. Auth required; body validated with the
-// same shared schema the client form uses.
 export async function POST(request: NextRequest) {
   if (!isSameOrigin(request)) {
     return jsonError("Cross-origin requests are not allowed.", 403);

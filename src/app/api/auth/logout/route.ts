@@ -11,6 +11,5 @@ export async function POST(request: NextRequest) {
 
   await destroySession();
 
-  // 204 No Content — logout has nothing to return, only state to revoke.
   return new NextResponse(null, { status: 204 });
 }

@@ -3,12 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth/session";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 
-/**
- * Server-side gate for every portal page. Middleware only checks cookie
- * presence on the edge; THIS is the real verification — the session is
- * resolved against the database on every request, and invalid or expired
- * sessions are redirected to login.
- */
+// the real gate — proxy.ts only checks that a cookie exists
 export default async function PortalLayout({ children }: { children: ReactNode }) {
   const user = await getSessionUser();
   if (!user) redirect("/login");

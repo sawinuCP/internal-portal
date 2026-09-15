@@ -1,5 +1,2 @@
-/**
- * Shared auth constants. Kept free of runtime imports so that edge-runtime
- * code (middleware.ts) can use them without pulling in the database layer.
- */
+// no runtime imports here — proxy.ts (edge runtime) uses this too
 export const SESSION_COOKIE = "portal_session";

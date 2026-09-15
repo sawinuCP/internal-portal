@@ -1,14 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE } from "@/lib/auth/constants";
 
-/**
- * Edge-level first filter for the portal area (Next.js 16's proxy, the
- * successor of middleware): checks only that a session cookie is PRESENT and
- * redirects anonymous visitors to login, preserving their destination in
- * `?next=`. It deliberately does NOT verify the session against the database
- * (prisma is not edge-runtime safe) — real verification happens in the portal
- * layout and in every API route. Defense in depth.
- */
+// cheap edge filter: no session cookie → login (with ?next= preserved).
+// the real verification happens in the portal layout and the api guards.
 export default function proxy(request: NextRequest) {
   if (!request.cookies.has(SESSION_COOKIE)) {
     const loginUrl = new URL("/login", request.url);

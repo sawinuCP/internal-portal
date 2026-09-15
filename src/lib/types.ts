@@ -1,7 +1,4 @@
-/**
- * Wire format of an announcement as exchanged with the API.
- * `createdAt` is an ISO 8601 string over the wire (JSON has no Date type).
- */
+// announcement as it comes over the api — createdAt is an ISO string
 export type Announcement = {
   id: string;
   title: string;

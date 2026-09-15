@@ -7,10 +7,6 @@ import { Card } from "@/components/ui/Card";
 import { AnnouncementForm } from "./AnnouncementForm";
 import { AnnouncementList } from "./AnnouncementList";
 
-/**
- * The portal's single content section: create + view announcements.
- * Composition root for the feed — owns no UI details itself.
- */
 export function AnnouncementsSection() {
   const { items, loading, error, submitting, reload, create } = useAnnouncements();
 

@@ -5,7 +5,7 @@ const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 const WEEK = 7 * DAY;
 
-/** Human-friendly timestamp: "just now", "5 minutes ago", "2 days ago", then a date. */
+// "5 minutes ago"-style labels; a plain date once it's over a week old
 export function formatRelativeTime(input: Date | string): string {
   const date = input instanceof Date ? input : new Date(input);
   const secondsAgo = Math.round((date.getTime() - Date.now()) / 1_000);

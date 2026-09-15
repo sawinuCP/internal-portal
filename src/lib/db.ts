@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-// PrismaClient is attached to `globalThis` in development so Next.js hot
-// reloads reuse one instance instead of exhausting the database connections.
+// one client across dev hot reloads
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 export const db = globalForPrisma.prisma ?? new PrismaClient();
