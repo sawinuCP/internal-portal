@@ -151,11 +151,20 @@ src/
 - A deploy story: serverless file systems can't host SQLite, so the datasource
   would move to Turso/Postgres via Prisma driver adapters.
 
+## Troubleshooting (Windows dev servers)
+
+On some Windows machines, real-time antivirus locks Turbopack's dev manifests
+mid-rename (`EPERM ... rename ... .next\dev\...`), which surfaces as random
+500s on pages in dev mode — the API routes keep working. The `dev` script
+therefore uses webpack (`next dev --webpack`), which is immune to this. If
+you prefer Turbopack, run `npm run dev:turbo`.
+
 ## Scripts
 
 | Command | What it does |
 |---|---|
-| `npm run dev` | Dev server at http://localhost:3000 |
+| `npm run dev` | Dev server at http://localhost:3000 (webpack — see troubleshooting) |
+| `npm run dev:turbo` | Dev server with Turbopack |
 | `npm run build` / `npm start` | Production build / serve |
 | `npm run lint` | ESLint |
 | `npm run db:migrate` | Apply migrations in dev |
