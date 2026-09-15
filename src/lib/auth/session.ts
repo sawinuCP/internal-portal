@@ -1,8 +1,10 @@
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { SESSION_COOKIE } from "./constants";
 
-export const SESSION_COOKIE = "portal_session";
+export { SESSION_COOKIE };
+
 
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
