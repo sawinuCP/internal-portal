@@ -48,6 +48,10 @@ export async function POST(request: NextRequest) {
     return jsonError("Invalid email or password.", 401);
   }
 
+  // Housekeeping: clear expired sessions while we're here, so the table
+  // doesn't grow forever (each session is also rejected lazily on lookup).
+  await db.session.deleteMany({ where: { expiresAt: { lt: new Date() } } });
+
   await createSession(user.id, request.headers.get("user-agent"));
 
   return jsonOk({ user: { id: user.id, name: user.name, email: user.email } });
