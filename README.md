@@ -145,7 +145,7 @@ src/
 |---|---|
 | Announcements feed as the section | Cleanest create + view story; ordering, timestamps, and author attribution come naturally |
 | SQLite via Prisma | A real relational DB with zero external services — runs anywhere after `npm install` |
-| bcryptjs (cost 12) | Standard credential hashing without native-build friction |
+| Native bcrypt (cost 12) | Industry-standard credential hashing with prebuilt binaries — no JS-implementation slowness on logins |
 | Server-side sessions; opaque token, SHA-256-hashed at rest | Instant revocation, XSS-resistant storage, no JWT revocation problem |
 | Open signup | Keeps the take-home self-serve: reviewers create their own account. A real internal portal would gate this behind invite codes or admin provisioning |
 | Zod schemas shared by API and forms | Client and server validation can never drift apart |
