@@ -11,12 +11,24 @@ type FeedState = {
   submitting: boolean;
 };
 
+const LOAD_ERROR = "Could not load announcements.";
+
+/** Single place that knows the announcements endpoint's shape. */
+async function requestAnnouncements(): Promise<Announcement[]> {
+  const response = await fetch("/api/announcements");
+  if (!response.ok) throw new Error("Request failed");
+  const data = (await response.json()) as { items: Announcement[] };
+  return data.items;
+}
+
 /**
  * Owns all feed state for the announcements section: loading, error, and the
  * list itself, plus the create action. Components stay presentational; this
  * hook is the single place that talks to the announcements API.
  */
 export function useAnnouncements() {
+  // `loading` starts true, so the first paint shows skeletons while the
+  // initial fetch below is in flight.
   const [state, setState] = useState<FeedState>({
     items: [],
     loading: true,
@@ -24,30 +36,44 @@ export function useAnnouncements() {
     submitting: false,
   });
 
-  const load = useCallback(async () => {
+  // Initial load: state updates happen inside the fetch's async callbacks
+  // (never synchronously in the effect body), and an in-flight request is
+  // ignored after unmount.
+  useEffect(() => {
+    let cancelled = false;
+
+    requestAnnouncements()
+      .then((items) => {
+        if (!cancelled) {
+          setState({ items, loading: false, error: null, submitting: false });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setState((previous) => ({ ...previous, loading: false, error: LOAD_ERROR }));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /** Manual refetch (the retry button): shows skeletons again, then fetches. */
+  const reload = useCallback(async () => {
     setState((previous) => ({ ...previous, loading: true, error: null }));
     try {
-      const response = await fetch("/api/announcements");
-      if (!response.ok) throw new Error("Request failed");
-      const data = (await response.json()) as { items: Announcement[] };
-      setState({ items: data.items, loading: false, error: null, submitting: false });
+      const items = await requestAnnouncements();
+      setState({ items, loading: false, error: null, submitting: false });
     } catch {
-      setState((previous) => ({
-        ...previous,
-        loading: false,
-        error: "Could not load announcements.",
-      }));
+      setState((previous) => ({ ...previous, loading: false, error: LOAD_ERROR }));
     }
   }, []);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
-
   /**
    * Creates an announcement. Returns null on success, or a user-facing error
-   * message on failure (field-level messages come back inside that message's
-   * 422 response and are handled by the form's own validation).
+   * message on failure (the API's field-level 422 details are mirrored by the
+   * form's own shared-schema validation).
    */
   const create = useCallback(
     async (input: AnnouncementInput): Promise<string | null> => {
@@ -80,5 +106,7 @@ export function useAnnouncements() {
     [],
   );
 
-  return { ...state, reload: load, create };
+  return { ...state, reload, create };
 }
+
+
