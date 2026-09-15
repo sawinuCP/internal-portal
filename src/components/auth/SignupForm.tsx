@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
@@ -11,6 +12,7 @@ import { fieldErrorsFromZod, registerSchema } from "@/lib/validation/schemas";
 
 export function SignupForm() {
   const router = useRouter();
+  const hydrated = useHydrated();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -112,7 +114,7 @@ export function SignupForm() {
         />
       </FormField>
 
-      <Button type="submit" loading={pending} className="w-full">
+      <Button type="submit" loading={pending} disabled={!hydrated} className="w-full">
         {pending ? "Creating account…" : "Create account"}
       </Button>
 

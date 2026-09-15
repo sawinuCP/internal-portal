@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useHydrated } from "@/lib/hooks/useHydrated";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { FormField } from "@/components/ui/FormField";
@@ -17,6 +18,7 @@ export function LoginForm({
   justRegistered?: boolean;
 }) {
   const router = useRouter();
+  const hydrated = useHydrated();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -103,7 +105,7 @@ export function LoginForm({
         />
       </FormField>
 
-      <Button type="submit" loading={pending} className="w-full">
+      <Button type="submit" loading={pending} disabled={!hydrated} className="w-full">
         {pending ? "Signing in…" : "Sign in"}
       </Button>
 
