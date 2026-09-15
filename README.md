@@ -30,8 +30,8 @@ Demo logins (created by the seed script):
 
 - **Login page** (`/login`) with inline validation, pending state, and a clear
   error banner; honors `?next=` to return you to where you were headed.
-- **Sign up** (`/signup`) — self-serve account creation; new users land
-  straight in the portal.
+- **Sign up** (`/signup`) — self-serve account creation (email, password,
+  verify password); the new user is then asked to sign in.
 - **Protected portal** (`/announcements`) — the announcements feed:
   - create announcements (validated, with a character counter) and see them
     appear at the top of the list,
@@ -45,10 +45,11 @@ Demo logins (created by the seed script):
 **Credential storage.** Passwords are hashed with bcrypt (cost 12); plaintext
 is never stored or logged. Login verifies with `bcrypt.compare`.
 
-**Account creation.** Signup hashes passwords with bcrypt at creation
-(8–72 chars — bcrypt ignores bytes past 72). Duplicate emails are rejected
-with `409`; the unique index also catches races between simultaneous
-signups, and new sessions start immediately after signup.
+**Account creation.** Signup collects email + password + verify password
+(bcrypt's 72-byte input limit caps the length) and hashes the password at
+creation. Duplicate emails are rejected with `409`; the unique index also
+catches races between simultaneous signups. Signup only creates the
+account — signing in happens through the normal login flow.
 
 **Sessions.** On login the server creates a `Session` row and sets an opaque,
 32-byte random token in a cookie:

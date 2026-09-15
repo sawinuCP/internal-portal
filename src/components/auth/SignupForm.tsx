@@ -11,9 +11,9 @@ import { fieldErrorsFromZod, registerSchema } from "@/lib/validation/schemas";
 
 export function SignupForm() {
   const router = useRouter();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -22,7 +22,7 @@ export function SignupForm() {
     event.preventDefault();
     setFormError(null);
 
-    const parsed = registerSchema.safeParse({ name, email, password });
+    const parsed = registerSchema.safeParse({ email, password, confirmPassword });
     if (!parsed.success) {
       setFieldErrors(fieldErrorsFromZod(parsed.error));
       return;
@@ -46,9 +46,8 @@ export function SignupForm() {
         return;
       }
 
-      // the api created the user and set the session cookie — straight in
-      router.replace("/announcements");
-      router.refresh();
+      // account created — sign in happens through the normal login flow
+      router.replace("/login?registered=1");
     } catch {
       setFormError("Could not create the account. Check your connection and try again.");
     } finally {
@@ -64,19 +63,6 @@ export function SignupForm() {
     >
       {formError && <Alert tone="error">{formError}</Alert>}
 
-      <FormField label="Name" htmlFor="signup-name" error={fieldErrors.name}>
-        <Input
-          id="signup-name"
-          name="name"
-          autoComplete="name"
-          value={name}
-          invalid={Boolean(fieldErrors.name)}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Your name"
-          autoFocus
-        />
-      </FormField>
-
       <FormField label="Email" htmlFor="signup-email" error={fieldErrors.email}>
         <Input
           id="signup-email"
@@ -87,6 +73,7 @@ export function SignupForm() {
           invalid={Boolean(fieldErrors.email)}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@team.dev"
+          autoFocus
         />
       </FormField>
 
@@ -104,6 +91,23 @@ export function SignupForm() {
           value={password}
           invalid={Boolean(fieldErrors.password)}
           onChange={(event) => setPassword(event.target.value)}
+          placeholder="••••••••"
+        />
+      </FormField>
+
+      <FormField
+        label="Verify password"
+        htmlFor="signup-confirm"
+        error={fieldErrors.confirmPassword}
+      >
+        <Input
+          id="signup-confirm"
+          name="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          value={confirmPassword}
+          invalid={Boolean(fieldErrors.confirmPassword)}
+          onChange={(event) => setConfirmPassword(event.target.value)}
           placeholder="••••••••"
         />
       </FormField>

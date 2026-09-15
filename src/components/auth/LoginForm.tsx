@@ -9,7 +9,13 @@ import { FormField } from "@/components/ui/FormField";
 import { Input } from "@/components/ui/Input";
 import { fieldErrorsFromZod, loginSchema } from "@/lib/validation/schemas";
 
-export function LoginForm({ nextPath }: { nextPath: string }) {
+export function LoginForm({
+  nextPath,
+  justRegistered = false,
+}: {
+  nextPath: string;
+  justRegistered?: boolean;
+}) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,6 +67,9 @@ export function LoginForm({ nextPath }: { nextPath: string }) {
       noValidate
       className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
     >
+      {justRegistered && (
+        <Alert tone="success">Account created — sign in to continue.</Alert>
+      )}
       {formError && <Alert tone="error">{formError}</Alert>}
 
       <FormField label="Email" htmlFor="login-email" error={fieldErrors.email}>

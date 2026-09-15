@@ -2,10 +2,19 @@ import type { NextRequest } from "next/server";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
-import { createSession } from "@/lib/auth/session";
 import { isSameOrigin } from "@/lib/http/origin";
 import { jsonError, jsonOk, jsonValidationError } from "@/lib/http/responses";
 import { fieldErrorsFromZod, registerSchema } from "@/lib/validation/schemas";
+
+// signup collects no name — derive a display name from the email instead
+function displayNameFromEmail(email: string): string {
+  return email
+    .split("@")[0]
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 export async function POST(request: NextRequest) {
   if (!isSameOrigin(request)) {
@@ -24,7 +33,7 @@ export async function POST(request: NextRequest) {
     return jsonValidationError(fieldErrorsFromZod(parsed.error));
   }
 
-  const { name, email, password } = parsed.data;
+  const { email, password } = parsed.data;
 
   const existing = await db.user.findUnique({ where: { email } });
   if (existing) {
@@ -36,14 +45,11 @@ export async function POST(request: NextRequest) {
   try {
     const user = await db.user.create({
       data: {
-        name,
+        name: displayNameFromEmail(email),
         email,
         passwordHash: await hashPassword(password),
       },
     });
-
-    // sign them straight in
-    await createSession(user.id, request.headers.get("user-agent"));
 
     return jsonOk({ user: { id: user.id, name: user.name, email: user.email } }, 201);
   } catch (error) {

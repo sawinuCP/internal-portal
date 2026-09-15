@@ -15,12 +15,12 @@ function safeNextPath(raw: string | undefined): string {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; registered?: string }>;
 }) {
   const user = await getSessionUser();
   if (user) redirect("/announcements");
 
-  const { next } = await searchParams;
+  const { next, registered } = await searchParams;
 
   return (
     <div className="flex min-h-dvh items-center justify-center px-4 py-12">
@@ -40,7 +40,10 @@ export default async function LoginPage({
           </p>
         </div>
 
-        <LoginForm nextPath={safeNextPath(next)} />
+        <LoginForm
+          nextPath={safeNextPath(next)}
+          justRegistered={registered === "1"}
+        />
       </div>
     </div>
   );
